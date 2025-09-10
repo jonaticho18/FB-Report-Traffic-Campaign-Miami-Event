@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miami Event Heroes - Dashboard de Ventas Septiembre 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --dark-color: #2c3e50;
+            --gradient-sales: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --gradient-conversion: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+        }
+
+        body {
+            background: var(--gradient-sales);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+            margin: 20px;
+            padding: 35px;
+        }
+
+        .header-section {
+            background: var(--gradient-conversion);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -15%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid var(--primary-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, transparent 40%, rgba(231, 76, 60, 0.05) 100%);
+            border-radius: 50%;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .kpi-value {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .kpi-label {
+            color: #555;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+        }
+
+        .kpi-trend {
+            font-size: 0.85rem;
+            margin-top: 12px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .trend-positive {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+
+        .trend-neutral {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info-color);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .performance-badge {
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-star {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .badge-champion {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+        }
+
+        .badge-potential {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 18px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .progress-bar-custom {
+            height: 12px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 1s ease;
+        }
+
+        .progress-excellent {
+            background: var(--gradient-success);
+        }
+
+        .progress-good {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .progress-average {
+            background: linear-gradient(90deg, #95a5a6, #7f8c8d);
+        }
+
+        .insights-section {
+            background: var(--gradient-success);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 40px rgba(17, 153, 142, 0.3);
+        }
+
+        .creative-testing-section {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            color: #333;
+            padding: 35px;
+            border-radius: 20px;
+            margin-top: 25px;
+        }
+
+        .authority-section {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            padding: 35px;
+            border-radius: 20px;
+            margin-top: 25px;
+        }
+
+        .conversion-strategy {
+            background: var(--gradient-conversion);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            margin-top: 25px;
+            box-shadow: 0 15px 40px rgba(252, 70, 107, 0.3);
+        }
+
+        .creative-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--info-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .kpi-value {
+                font-size: 2.2rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-sales {
+            animation: pulseSales 3s infinite;
+        }
+
+        @keyframes pulseSales {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="dashboard-container fade-in">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1><i class="fas fa-chart-line"></i> Miami Event Heroes</h1>
+                <h2>Dashboard de Conversiones - Septiembre 2025</h2>
+                <p><i class="far fa-calendar-alt"></i> Campaña de Ventas: 1-10 Septiembre | <i class="fas fa-bullseye"></i> Enfoque: Generación de Autoridad y Conversiones</p>
+            </div>
+
+            <!-- Insights Destacados -->
+            <div class="insights-section">
+                <h3><i class="fas fa-trophy"></i> Logros Destacados del Período</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>🎯 Reel 1: El Campeón</h5>
+                        <p><strong>CTR 3.35%:</strong> Supera el benchmark de la industria (1-2%) por más del 100%</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>📈 Alcance Estratégico</h5>
+                        <p><strong>13,155 usuarios únicos:</strong> Base sólida para escalar y generar reconocimiento de marca</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>💡 Diversificación Exitosa</h5>
+                        <p><strong>3 formatos activos:</strong> Carrusel emergente con potencial de optimización</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Section -->
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="kpi-card pulse-sales">
+                        <div class="kpi-value">$752.69</div>
+                        <div class="kpi-label">Inversión Total</div>
+                        <div class="kpi-trend trend-positive">
+                            <i class="fas fa-chart-line"></i> Base de escalamiento
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="kpi-card">
+                        <div class="kpi-value">441</div>
+                        <div class="kpi-label">Clics Totales</div>
+                        <div class="kpi-trend trend-positive">
+                            <i class="fas fa-mouse-pointer"></i> Tráfico calificado
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="kpi-card">
+                        <div class="kpi-value">2.68%</div>
+                        <div class="kpi-label">CTR Promedio</div>
+                        <div class="kpi-trend trend-positive">
+                            <i class="fas fa-arrow-up"></i> Sobre benchmark
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="kpi-card">
+                        <div class="kpi-value">33,380</div>
+                        <div class="kpi-label">Impresiones</div>
+                        <div class="kpi-trend trend-neutral">
+                            <i class="fas fa-eye"></i> Alcance premium
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">Performance por Formato Creativo</div>
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">Distribución de Inversión por Anuncio</div>
+                        <canvas id="spendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">Alcance vs Engagement</div>
+                        <canvas id="reachChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <div class="chart-title">Eficiencia de Clics</div>
+                        <canvas id="clicksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="comparison-table">
+                        <h4 class="chart-title" style="padding: 25px 0;">Análisis Detallado por Creative</h4>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Creative</th>
+                                    <th>Formato</th>
+                                    <th>Alcance</th>
+                                    <th>CTR</th>
+                                    <th>Clics</th>
+                                    <th>Inversión</th>
+                                    <th>Performance</th>
+                                    <th>Estrategia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Reel 1</strong></td>
+                                    <td><span class="badge bg-primary">Video</span></td>
+                                    <td>9,780</td>
+                                    <td><strong>3.35%</strong></td>
+                                    <td>278</td>
+                                    <td>$445.81</td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                            <div class="progress-fill progress-excellent" style="width: 95%"></div>
+                                        </div>
+                                        <small class="text-success">Champion (95/100)</small>
+                                    </td>
+                                    <td><span class="badge badge-champion">Escalar Agresivo</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carrusel_V1</strong></td>
+                                    <td><span class="badge bg-info">Carousel</span></td>
+                                    <td>3,245</td>
+                                    <td>2.32%</td>
+                                    <td>60</td>
+                                    <td>$89.94</td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                            <div class="progress-fill progress-good" style="width: 75%"></div>
+                                        </div>
+                                        <small class="text-warning">Potential (75/100)</small>
+                                    </td>
+                                    <td><span class="badge badge-potential">Optimizar + Test</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IMG_V1</strong></td>
+                                    <td><span class="badge bg-secondary">Imagen</span></td>
+                                    <td>4,991</td>
+                                    <td>1.65%</td>
+                                    <td>103</td>
+                                    <td>$216.94</td>
+                                    <td>
+                                        <div class="progress-bar-custom">
+                                            <div class="progress-fill progress-average" style="width: 50%"></div>
+                                        </div>
+                                        <small class="text-muted">Baseline (50/100)</small>
+                                    </td>
+                                    <td><span class="badge badge-potential">Rediseñar</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creative Testing Section -->
+            <div class="creative-testing-section">
+                <h4><i class="fas fa-flask"></i> Estrategia de Testing para Nuevos Creativos</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-video"></i> Variaciones de Video (Base: Reel 1 exitoso)</h6>
+                        <div class="creative-card">
+                            <strong>Reel - Testimonial de Cliente:</strong> Cliente real compartiendo su experiencia del evento anterior
+                        </div>
+                        <div class="creative-card">
+                            <strong>Reel - Behind the Scenes:</strong> Preparativos del evento, genera FOMO y exclusividad
+                        </div>
+                        <div class="creative-card">
+                            <strong>Reel - Countdown:</strong> "Últimos días" con urgencia visual y música dinámica
+                        </div>
+                        <div class="creative-card">
+                            <strong>Reel - Beneficios Clave:</strong> 3 razones principales por las que asistir
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-images"></i> Formatos Alternativos para Diversificar</h6>
+                        <div class="creative-card">
+                            <strong>Carousel - Agenda del Evento:</strong> Cada slide muestra una actividad específica
+                        </div>
+                        <div class="creative-card">
+                            <strong>Carousel - Speakers/Ponentes:</strong> Perfil de cada speaker con su expertise
+                        </div>
+                        <div class="creative-card">
+                            <strong>Video Square - Testimonios:</strong> Compilación de 3-4 testimonios cortos
+                        </div>
+                        <div class="creative-card">
+                            <strong>Stories - Live Updates:</strong> Simulación de "actualizaciones en vivo"
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authority Section -->
+            <div class="authority-section">
+                <h4><i class="fas fa-crown"></i> Estrategias para Generar Autoridad y Credibilidad</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-medal"></i> Social Proof</h6>
+                        <ul>
+                            <li><strong>Números de impacto:</strong> "500+ asistentes confirmados"</li>
+                            <li><strong>Testimonios en video:</strong> Participantes de eventos anteriores</li>
+                            <li><strong>Reviews y ratings:</strong> Screenshots de reseñas positivas</li>
+                            <li><strong>Media mentions:</strong> Logos de medios que han cubierto el evento</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-users"></i> Autoridad del Organizador</h6>
+                        <ul>
+                            <li><strong>Track record:</strong> "5 años organizando eventos exitosos"</li>
+                            <li><strong>Credenciales:</strong> Certificaciones y experiencia relevante</li>
+                            <li><strong>Partnerships:</strong> Alianzas con marcas reconocidas</li>
+                            <li><strong>Awards:</strong> Reconocimientos recibidos</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-star"></i> Exclusividad y Valor</h6>
+                        <ul>
+                            <li><strong>Early bird:</strong> "Solo 100 tickets de descuento disponibles"</li>
+                            <li><strong>VIP experience:</strong> Accesos exclusivos y beneficios premium</li>
+                            <li><strong>Limited spots:</strong> "Cupos limitados por capacidad del venue"</li>
+                            <li><strong>Bonus content:</strong> Materiales exclusivos post-evento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Strategy -->
+            <div class="conversion-strategy">
+                <h4><i class="fas fa-bullseye"></i> Plan de Conversión - Próximos 14 Días</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-rocket"></i> Escalamiento Inmediato</h6>
+                        <p><strong>Reel 1:</strong> Aumentar budget de $45/día a $75/día</p>
+                        <p><strong>Test de lookalike:</strong> Crear audiencia basada en visitantes de landing page</p>
+                        <p><strong>Retargeting:</strong> Audiencia de video viewers (75%+ del video)</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-test-tube"></i> Testing Estructurado</h6>
+                        <p><strong>Semana 1:</strong> 4 variaciones de Reel con hooks diferentes</p>
+                        <p><strong>Semana 2:</strong> Mejores 2 variaciones vs formatos carousel</p>
+                        <p><strong>Budget testing:</strong> $25/día por variación nueva</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-funnel-dollar"></i> Funnel Optimization</h6>
+                        <p><strong>Landing page:</strong> A/B test de headlines con social proof</p>
+                        <p><strong>Pixel events:</strong> Trackear micro-conversiones (video completion, scroll depth)</p>
+                        <p><strong>Email sequence:</strong> Follow-up automático post-clic</p>
+                    </div>
+                </div>
+                <div class="alert alert-light mt-4">
+                    <h5><i class="fas fa-target"></i> Objetivo 14 días: Conseguir 150 conversiones con CPA < $15</h5>
+                    <p><strong>Estrategia:</strong> 70% budget en Reel variations, 20% en retargeting, 10% en testing de nuevos formatos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#666';
+
+        // Performance Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Reel 1', 'Carrusel_V1', 'IMG_V1'],
+                datasets: [{
+                    label: 'CTR (%)',
+                    data: [3.35, 2.32, 1.65],
+                    backgroundColor: [
+                        'rgba(39, 174, 96, 0.8)',
+                        'rgba(243, 156, 18, 0.8)',
+                        'rgba(149, 165, 166, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(39, 174, 96, 1)',
+                        'rgba(243, 156, 18, 1)',
+                        'rgba(149, 165, 166, 1)'
+                    ],
+                    borderWidth: 3,
+                    borderRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Spend Distribution Chart
+        const spendCtx = document.getElementById('spendChart').getContext('2d');
+        new Chart(spendCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Reel 1 (Champion)', 'IMG_V1 (Baseline)', 'Carrusel_V1 (Potential)'],
+                datasets: [{
+                    data: [445.81, 216.94, 89.94],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.8)',
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
+                    ],
+                    borderWidth: 4,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { 
+                            padding: 25,
+                            usePointStyle: true,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Reach vs Engagement Chart
+        const reachCtx = document.getElementById('reachChart').getContext('2d');
+        new Chart(reachCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Reel 1',
+                    data: [{x: 9780, y: 3.35}],
+                    backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                    borderColor: 'rgba(39, 174, 96, 1)',
+                    pointRadius: 12
+                }, {
+                    label: 'IMG_V1',
+                    data: [{x: 4991, y: 1.65}],
+                    backgroundColor: 'rgba(149, 165, 166, 0.8)',
+                    borderColor: 'rgba(149, 165, 166, 1)',
+                    pointRadius: 10
+                }, {
+                    label: 'Carrusel_V1',
+                    data: [{x: 3245, y: 2.32}],
+                    backgroundColor: 'rgba(243, 156, 18, 0.8)',
+                    borderColor: 'rgba(243, 156, 18, 1)',
+                    pointRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'Alcance' },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: { 
+                        title: { display: true, text: 'CTR (%)' },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                }
+            }
+        });
+
+        // Clicks Efficiency Chart
+        const clicksCtx = document.getElementById('clicksChart').getContext('2d');
+        new Chart(clicksCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Reel 1', 'IMG_V1', 'Carrusel_V1'],
+                datasets: [{
+                    label: 'Clics',
+                    data: [278, 103, 60],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.8)',
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(155, 89, 182, 1)'
+                    ],
+                    borderWidth: 3,
+                    borderRadius: 12
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Animations
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.kpi-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.animation = 'fadeIn 0.8s ease-in';
+                    }, index * 200);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
